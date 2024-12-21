@@ -1,4 +1,4 @@
-# Discord Chat Viewer
+# Discord Chat Analyser
 A simple commandline tool to analyse a channel in Discord.
 
 ![Figure_1](https://github.com/user-attachments/assets/53d75c23-80da-4c57-81d0-c08ffef6dab1)
