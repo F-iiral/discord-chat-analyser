@@ -35,15 +35,19 @@ def check_access(channel_id: str, token: str) -> bool:
         Logger.log(f"Found channel '#{data['name']}' and will now collect message data.", True)
         return True
 
-def fetch_messages(channel_id: str, token: str) -> list[dict]:
+def fetch_messages(channel_id: str, token: str, max_count: int, request_size: int) -> list[dict]:
     url = f"https://discord.com/api/v9/channels/{channel_id}/messages"
     headers = {"authorization": token}
-    params = {"limit": 50}
+    params = {"limit": request_size}
 
     messages = []
     count = 0
 
     while True:
+        if count == max_count:
+            Logger.log(f"Reached maximum count of {max_count}.")
+            break
+
         Logger.log(f"Starting request: No#{count}")
 
         response = requests.get(url, headers=headers, params=params)

@@ -13,14 +13,16 @@ Flags
 -v Displays the current version
           
 Options
---channel=<id> Fetches messages from the given channel without asking the user
---token=<token> Will use the given token without asking the user
+--channel=<id> Fetches messages from the given channel without asking the user.
+--token=<token> Will use the given token without asking the user.
+--requests-count=<int> Amount of requests that may be send. This is an inclusive upper bound. Leave empty for unlimited.
+--request-size=<int> Amount of messages you want to get per request. Defaults to 50.
 """)
 
 def version() -> None:
     print("0.1.0")
 
-def fetch_and_analyse(channel_id: str, token: str) -> None:
+def fetch_and_analyse(channel_id: str, token: str, max_requests: int, _requests_size: int) -> None:
     access = check_access(channel_id, token)
 
     if not access:
@@ -30,7 +32,7 @@ def fetch_and_analyse(channel_id: str, token: str) -> None:
         print("You do not have access to that channel or it does not exist.")
         return
 
-    messages = fetch_messages(channel_id, token)
+    messages = fetch_messages(channel_id, token, max_requests, _requests_size)
     messages = process_messages(messages)
     plot_messages(messages)
 
@@ -40,12 +42,18 @@ def main(args: list[str]) -> None:
     _version = "-v" in args
     _channel = None
     _token = None
+    _request_count = None
+    _requests_size = None
 
     for arg in args:
         if arg.startswith("--channel="):
             _channel = arg.removeprefix("--channel=")
         if arg.startswith("--token="):
             _token = arg.removeprefix("--token=")
+        if arg.startswith("--requests-count="):
+            _request_count = int(arg.removeprefix("--requests-count="))
+        if arg.startswith("--request-size="):
+            _requests_size = int(arg.removeprefix("--request-size="))
 
     if _help: 
         help()
@@ -60,8 +68,12 @@ def main(args: list[str]) -> None:
         _channel = input("Channel to analyse: ")
     if not _token:
         _token = input("Your Discord token: ")
+    if not _request_count or _request_count <= 0:
+        _request_count = -1
+    if not _requests_size or _requests_size > 50 or _requests_size <= 0:
+        _requests_size = 50
 
-    fetch_and_analyse(_channel, _token)
+    fetch_and_analyse(_channel, _token, _request_count, _requests_size)
 
 if __name__ == "__main__":
     args = sys.argv[1:]
